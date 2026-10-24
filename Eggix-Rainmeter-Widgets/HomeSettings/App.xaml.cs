@@ -27,7 +27,7 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
-        if (_mutex != null)
+        if (_mutex is not null)
         {
             _mutex.ReleaseMutex();
             _mutex.Dispose();
@@ -35,23 +35,33 @@ public partial class App : Application
         base.OnExit(e);
     }
 
-    [DllImport("user32.dll")]
-    private static extern bool SetForegroundWindow(IntPtr hWnd);
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool SetForegroundWindow(IntPtr hWnd);
 
-    [DllImport("user32.dll")]
-    private static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
 
-    [DllImport("user32.dll")]
-    private static extern bool IsIconic(IntPtr hWnd);
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool IsIconic(IntPtr hWnd);
 
     private static void ActivateExistingInstance()
     {
         var proc = Process.GetProcessesByName("HomeSettings")
             .FirstOrDefault(p => p.MainWindowHandle != IntPtr.Zero);
-        if (proc == null) return;
+        if (proc is null)
+        {
+            return;
+        }
 
         var h = proc.MainWindowHandle;
-        if (IsIconic(h)) ShowWindowAsync(h, 9); // SW_RESTORE
+        if (IsIconic(h))
+        {
+            ShowWindowAsync(h, 9); // SW_RESTORE
+        }
+
         SetForegroundWindow(h);
     }
 }

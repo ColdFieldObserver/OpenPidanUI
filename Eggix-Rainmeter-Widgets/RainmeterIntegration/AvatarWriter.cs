@@ -25,8 +25,8 @@ public static class AvatarWriter
         string destination = Path.GetFullPath(destinationPath);
         string dir = Path.GetDirectoryName(destination) ?? ".";
         string tempPath = Path.Combine(dir,
-            Path.GetFileNameWithoutExtension(destination)
-            + "." + Guid.NewGuid().ToString("N").Substring(0, 8) + ".tmp.png");
+            string.Concat(Path.GetFileNameWithoutExtension(destination),
+            ".", Guid.NewGuid().ToString("N").AsSpan(0, 8), ".tmp.png"));
 
         File.WriteAllBytes(tempPath, pngBytes);
 
@@ -37,7 +37,11 @@ public static class AvatarWriter
         finally
         {
             // Best-effort cleanup of the temp file if something went wrong.
-            try { if (File.Exists(tempPath)) File.Delete(tempPath); }
+            try { if (File.Exists(tempPath))
+                {
+                    File.Delete(tempPath);
+                }
+            }
             catch { /* ignore */ }
         }
     }
@@ -71,7 +75,9 @@ public static class AvatarWriter
                         double dx = x - center;
                         double dy = y - center;
                         if (dx * dx + dy * dy > radiusSquared)
+                        {
                             row[x].A = 0;
+                        }
                     }
                 }
             });

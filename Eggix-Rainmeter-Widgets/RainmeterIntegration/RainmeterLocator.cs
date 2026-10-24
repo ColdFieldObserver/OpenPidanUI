@@ -18,7 +18,10 @@ public static class RainmeterLocator
             if (!string.IsNullOrEmpty(path))
             {
                 var exe = Path.Combine(path, "Rainmeter.exe");
-                if (File.Exists(exe)) return exe;
+                if (File.Exists(exe))
+                {
+                    return exe;
+                }
             }
         }
 
@@ -29,9 +32,16 @@ public static class RainmeterLocator
                      Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)
                  })
         {
-            if (string.IsNullOrEmpty(pf)) continue;
+            if (string.IsNullOrEmpty(pf))
+            {
+                continue;
+            }
+
             var exe = Path.Combine(pf, "Rainmeter", "Rainmeter.exe");
-            if (File.Exists(exe)) return exe;
+            if (File.Exists(exe))
+            {
+                return exe;
+            }
         }
 
         // 3. PATH
@@ -46,7 +56,10 @@ public static class RainmeterLocator
             try
             {
                 var full = Path.Combine(dir, fileName);
-                if (File.Exists(full)) return full;
+                if (File.Exists(full))
+                {
+                    return full;
+                }
             }
             catch
             {

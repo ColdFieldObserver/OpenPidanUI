@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="HomeSettings/HomeSettings.csproj" Id="571a93e6-e16c-4cdf-8e05-51e99b57347a" />
   <Project Path="RainmeterIntegration/RainmeterIntegration.csproj" Id="f2a1c0b3-7d4e-4f1a-9c2b-2e6a8f0c1d2e" />
+  <Project Path="UseHelp/UseHelp.csproj" Id="9c3f1a2b-4d5e-6f7a-8b9c-0d1e2f3a4b5c" />
 </Solution>

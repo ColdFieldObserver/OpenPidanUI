@@ -20,7 +20,10 @@ public class RainmeterController
     public void Refresh(string? configName = null)
     {
         var exe = RainmeterLocator.FindRainmeterExe();
-        if (exe == null) return;
+        if (exe is null)
+        {
+            return;
+        }
 
         var bang = string.IsNullOrWhiteSpace(configName)
             ? "!RefreshApp"

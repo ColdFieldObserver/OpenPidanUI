@@ -43,7 +43,10 @@ public class SkinConfig
         get
         {
             var skinsRoot = FindSkinsRoot(SkinDirectory);
-            if (skinsRoot == null) return null;
+            if (skinsRoot is null)
+            {
+                return null;
+            }
 
             var relative = GetRelativePath(skinsRoot, SkinDirectory)
                 .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
@@ -54,9 +57,17 @@ public class SkinConfig
 
     private static string? FindSkinDirectory(string baseDir)
     {
-        if (File.Exists(Path.Combine(baseDir, "home.ini"))) return baseDir;
+        if (File.Exists(Path.Combine(baseDir, "home.ini")))
+        {
+            return baseDir;
+        }
+
         var parent = Directory.GetParent(baseDir)?.FullName;
-        if (parent != null && File.Exists(Path.Combine(parent, "home.ini"))) return parent;
+        if (parent is not null && File.Exists(Path.Combine(parent, "home.ini")))
+        {
+            return parent;
+        }
+
         return null;
     }
 
@@ -66,9 +77,16 @@ public class SkinConfig
         while (!string.IsNullOrEmpty(current))
         {
             if (string.Equals(Path.GetFileName(current), "Skins", StringComparison.OrdinalIgnoreCase))
+            {
                 return current;
+            }
+
             var parent = Directory.GetParent(current)?.FullName;
-            if (parent == null || parent == current) break;
+            if (parent is null || parent == current)
+            {
+                break;
+            }
+
             current = parent;
         }
         return null;

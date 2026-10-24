@@ -11,13 +11,19 @@ public static class IniSkinWriter
 {
     public static string GetValue(string filePath, string section, string key, string defaultValue = "")
     {
-        if (!File.Exists(filePath)) return defaultValue;
+        if (!File.Exists(filePath))
+        {
+            return defaultValue;
+        }
 
         string? currentSection = null;
         foreach (var rawLine in File.ReadAllLines(filePath))
         {
             var line = rawLine.Trim();
-            if (line.Length == 0 || line.StartsWith(';') || line.StartsWith('#')) continue;
+            if (line.Length == 0 || line.StartsWith(';') || line.StartsWith('#'))
+            {
+                continue;
+            }
 
             if (line.StartsWith('[') && line.EndsWith(']'))
             {
@@ -26,14 +32,21 @@ public static class IniSkinWriter
             }
 
             if (!string.Equals(currentSection, section, StringComparison.OrdinalIgnoreCase))
+            {
                 continue;
+            }
 
             var idx = line.IndexOf('=');
-            if (idx <= 0) continue;
+            if (idx <= 0)
+            {
+                continue;
+            }
 
             var k = line.Substring(0, idx).Trim();
             if (string.Equals(k, key, StringComparison.OrdinalIgnoreCase))
+            {
                 return line.Substring(idx + 1).Trim();
+            }
         }
 
         return defaultValue;
@@ -62,7 +75,10 @@ public static class IniSkinWriter
         if (sectionIndex == -1)
         {
             if (lines.Count > 0 && lines[^1].Trim().Length > 0)
+            {
                 lines.Add(string.Empty);
+            }
+
             lines.Add($"[{section}]");
             lines.Add($"{key}={value}");
             File.WriteAllLines(filePath, lines);
@@ -74,10 +90,17 @@ public static class IniSkinWriter
         for (int i = sectionIndex + 1; i < lines.Count; i++)
         {
             var trimmed = lines[i].Trim();
-            if (trimmed.StartsWith('[')) break;
+            if (trimmed.StartsWith('['))
+            {
+                break;
+            }
 
             var idx = trimmed.IndexOf('=');
-            if (idx <= 0) continue;
+            if (idx <= 0)
+            {
+                continue;
+            }
+
             if (string.Equals(trimmed.Substring(0, idx).Trim(), key, StringComparison.OrdinalIgnoreCase))
             {
                 keyIndex = i;
@@ -86,9 +109,13 @@ public static class IniSkinWriter
         }
 
         if (keyIndex == -1)
+        {
             lines.Insert(sectionIndex + 1, $"{key}={value}");
+        }
         else
+        {
             lines[keyIndex] = $"{key}={value}";
+        }
 
         File.WriteAllLines(filePath, lines);
     }

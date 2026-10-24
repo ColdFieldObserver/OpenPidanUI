@@ -31,14 +31,18 @@ public partial class MainWindow : Window
         NicknameBox.Text = _skin.GetNickname();
 
         if (File.Exists(_skin.AvatarPath))
+        {
             AvatarPreview.Source = LoadBitmap(_skin.AvatarPath);
+        }
 
         var presets = new ObservableCollection<PresetItem>();
         if (Directory.Exists(_skin.PresetsFolder))
         {
             foreach (var file in Directory.GetFiles(_skin.PresetsFolder, "*.png")
                          .OrderBy(Path.GetFileName, StringComparer.OrdinalIgnoreCase))
+            {
                 presets.Add(new PresetItem { ImagePath = file });
+            }
         }
         PresetList.ItemsSource = presets;
 
@@ -52,7 +56,10 @@ public partial class MainWindow : Window
             Filter = "图片文件|*.png;*.jpg;*.jpeg;*.bmp;*.webp",
             Title = "选择头像图片"
         };
-        if (dlg.ShowDialog() != true) return;
+        if (dlg.ShowDialog() != true)
+        {
+            return;
+        }
 
         _pendingAvatarSource = dlg.FileName;
         _selectedPreset = null;
@@ -62,7 +69,11 @@ public partial class MainWindow : Window
 
     private void PresetList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
-        if (PresetList.SelectedItem is not PresetItem item) return;
+        if (PresetList.SelectedItem is not PresetItem item)
+        {
+            return;
+        }
+
         _selectedPreset = item.ImagePath;
         _pendingAvatarSource = null;
         ShowPreview(item.ImagePath);
@@ -71,7 +82,9 @@ public partial class MainWindow : Window
     private void OpenFolderButton_Click(object sender, RoutedEventArgs e)
     {
         if (Directory.Exists(_skin.SkinDirectory))
+        {
             Process.Start("explorer.exe", _skin.SkinDirectory);
+        }
     }
 
     private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -81,7 +94,7 @@ public partial class MainWindow : Window
             _skin.SetNickname((NicknameBox.Text ?? "").Trim());
 
             var avatarSource = _pendingAvatarSource ?? _selectedPreset;
-            if (avatarSource != null)
+            if (avatarSource is not null)
             {
                 // Default to circular crop; fall back to square if circular fails
                 // (e.g. an unsupported source format).
