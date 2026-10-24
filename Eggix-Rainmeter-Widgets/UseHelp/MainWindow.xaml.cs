@@ -9,8 +9,8 @@ namespace UseHelp;
 
 public partial class MainWindow : Window
 {
-    private const string ProgramVersion = "1.0";
-    private const string OnlineHelpUrl = "https://eggyui-help.neocities.org/";
+    private const string ProgramVersion = "1.2";
+    private const string OnlineHelpUrl = "https://eggyuidocs.wordpress.com/";
 
     public MainWindow()
     {
