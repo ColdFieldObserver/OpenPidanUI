@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HelpContent>
+	<!-- 在此处放置帮助内容 -->
+	<Category Text="怎么修改Rainmeter桌面小组件的用户名呀？">
+		<Item Text="进入文档\Rainmeter\Skins\EggyUI\Home，修改文件夹里的home.ini文件就可以啦～文件里有贴心注释，不用担心找不到修改位置哦！"/>
+	</Category>
+	<Category Text="怎么调整Rainmeter桌面小工具的尺寸呢？">
+		<Item Text="和修改用户名的方法一样，找到对应组件的ini文件，修改“W”和“H”就好啦（W是宽度，H是高度，一定要等比例缩放，才不会变形哦！）"/>
+	</Category>
+	<Category Text="我修改了Rainmeter桌面小组件的皮肤文件，但是没有生效怎么办？">
+		<Item Text="打开Rainmeter管理器，点击“刷新全部（Refresh All）”，或者直接重启Rainmeter，修改就会生效啦！"/>
+	</Category>
+	<Category Text="EggyUI残血版与EggyUI完整版有哪些不同？">
+		<Item Text="与完整版的EggyUI相较，残血版的EggyUI移除了大量美化特性（尤其是修改系统底层文件的美化特性），只剩下可以被移除的基础美化特性，适合需要将EggyUI作为主力系统的用户。"/>
+	</Category>
+	<Category Text="作者信息">
+		<Item Text="作者：皮蛋自媒"/>
+		<Item Text="项目性质：非盈利性粉丝创作，严禁商业用途"/>
+		<Item Text="素材声明：全部内容均为原创重制或合法获取"/>
+		<Item Text="欢迎加入EggyUI交流群：1090050382，一起玩转蛋仔风桌面～"/>
+	</Category>
+</HelpContent>
