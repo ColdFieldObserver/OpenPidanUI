@@ -1,13 +1,13 @@
 using System.IO;
 
-namespace RainmeterIntegration;
+namespace RainmeterIntegration.Internal;
 
 /// <summary>
-/// Minimal INI reader/writer that preserves comments, blank lines and unrelated
-/// sections. Used to safely update a Rainmeter skin .ini (e.g. home.ini) without
-/// disturbing the rest of the file.
+/// Low-level INI reader/writer that preserves comments, blank lines and unrelated
+/// sections. Implementation detail used by <see cref="FileIniStore"/>; not part of
+/// the public SDK surface.
 /// </summary>
-public static class IniSkinWriter
+internal static class IniSkinWriter
 {
     public static string GetValue(string filePath, string section, string key, string defaultValue = "")
     {

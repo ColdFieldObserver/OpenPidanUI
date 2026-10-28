@@ -3,23 +3,24 @@ using System.Diagnostics;
 namespace RainmeterIntegration;
 
 /// <summary>
-/// Sends bangs to a running Rainmeter instance via the Rainmeter.exe command line.
-/// This is the supported "external application" control surface of the Rainmeter SDK
-/// (see docs.rainmeter.net/manual/bangs - "Command Line Arguments").
+/// Default <see cref="IRainmeterController"/>: drives a running Rainmeter instance
+/// through the Rainmeter.exe command line (bangs). Depends on an
+/// <see cref="IRainmeterLocator"/> so the lookup strategy is swappable.
 /// </summary>
-public class RainmeterController
+public sealed class RainmeterController : IRainmeterController
 {
-    /// <summary>True when Rainmeter.exe can be located on this machine.</summary>
-    public bool IsAvailable => RainmeterLocator.FindRainmeterExe() != null;
+    private readonly IRainmeterLocator _locator;
 
-    /// <summary>
-    /// Refreshes the given skin config (e.g. "EggyUI-Air\Home"). When
-    /// <paramref name="configName"/> is null/empty, falls back to !RefreshApp
-    /// (refreshes every loaded skin).
-    /// </summary>
+    public RainmeterController(IRainmeterLocator locator)
+    {
+        _locator = locator ?? throw new ArgumentNullException(nameof(locator));
+    }
+
+    public bool IsAvailable => _locator.FindExecutable() != null;
+
     public void Refresh(string? configName = null)
     {
-        var exe = RainmeterLocator.FindRainmeterExe();
+        var exe = _locator.FindExecutable();
         if (exe is null)
         {
             return;

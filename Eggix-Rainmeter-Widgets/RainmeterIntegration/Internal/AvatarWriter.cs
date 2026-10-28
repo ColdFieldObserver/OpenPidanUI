@@ -1,55 +1,17 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using System.IO;
 using System.Threading;
 
-namespace RainmeterIntegration;
+namespace RainmeterIntegration.Internal;
 
 /// <summary>
-/// Writes avatar images. Any source image is cover-fitted into a square. When
-/// <paramref name="circular"/> is true (default) the pixels outside the inscribed
-/// circle are made transparent, matching the circular avatar style produced by the
-/// AvatarMaker tool.
-///
-/// The processed PNG is rendered to memory, written to a temp file on the same
-/// volume, then atomically replaces the destination. The replace is retried for a
-/// short while because the Rainmeter skin (or another viewer) may briefly hold
-/// the target file open. This avoids the "file is in use" failure.
+/// Low-level avatar rendering and file writing. Implementation detail used by
+/// <see cref="FileAvatarWriter"/>; not part of the public SDK surface.
 /// </summary>
-public static class AvatarWriter
+internal static class AvatarWriter
 {
-    public static void WriteCircular(string sourcePath, string destinationPath, int size = 256, bool circular = true)
-    {
-        byte[] pngBytes = RenderAvatar(sourcePath, size, circular);
-
-        string destination = Path.GetFullPath(destinationPath);
-        string dir = Path.GetDirectoryName(destination) ?? ".";
-        string tempPath = Path.Combine(dir,
-            string.Concat(Path.GetFileNameWithoutExtension(destination),
-            ".", Guid.NewGuid().ToString("N").AsSpan(0, 8), ".tmp.png"));
-
-        File.WriteAllBytes(tempPath, pngBytes);
-
-        try
-        {
-            ReplaceWithRetry(tempPath, destination);
-        }
-        finally
-        {
-            // Best-effort cleanup of the temp file if something went wrong.
-            try { if (File.Exists(tempPath))
-                {
-                    File.Delete(tempPath);
-                }
-            }
-            catch { /* ignore */ }
-        }
-    }
-
-    /// <summary>
-    /// Renders the cropped avatar to a PNG byte array without touching disk, so
-    /// the UI can preview the exact result (circular or square) before saving.
-    /// </summary>
     public static byte[] RenderAvatar(string sourcePath, int size = 256, bool circular = true)
     {
         using var image = Image.Load<Rgba32>(sourcePath);
@@ -86,6 +48,36 @@ public static class AvatarWriter
         using var ms = new MemoryStream();
         image.SaveAsPng(ms);
         return ms.ToArray();
+    }
+
+    public static void WriteAvatar(string sourcePath, string destinationPath, int size = 256, bool circular = true)
+    {
+        byte[] pngBytes = RenderAvatar(sourcePath, size, circular);
+
+        string destination = Path.GetFullPath(destinationPath);
+        string dir = Path.GetDirectoryName(destination) ?? ".";
+        string tempPath = Path.Combine(dir,
+            string.Concat(Path.GetFileNameWithoutExtension(destination),
+            ".", Guid.NewGuid().ToString("N").AsSpan(0, 8), ".tmp.png"));
+
+        File.WriteAllBytes(tempPath, pngBytes);
+
+        try
+        {
+            ReplaceWithRetry(tempPath, destination);
+        }
+        finally
+        {
+            // Best-effort cleanup of the temp file if something went wrong.
+            try
+            {
+                if (File.Exists(tempPath))
+                {
+                    File.Delete(tempPath);
+                }
+            }
+            catch { /* ignore */ }
+        }
     }
 
     private static void ReplaceWithRetry(string tempPath, string destination)

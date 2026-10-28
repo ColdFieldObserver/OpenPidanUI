@@ -4,11 +4,12 @@ using System.IO;
 namespace RainmeterIntegration;
 
 /// <summary>
-/// Locates the Rainmeter.exe installation so the host app can send refresh bangs.
+/// Default <see cref="IRainmeterLocator"/>: finds Rainmeter.exe via the registry
+/// install path, then the standard Program Files locations, then the PATH.
 /// </summary>
-public static class RainmeterLocator
+public sealed class RegistryRainmeterLocator : IRainmeterLocator
 {
-    public static string? FindRainmeterExe()
+    public string? FindExecutable()
     {
         // 1. Registry: HKLM/HKCU\Software\Rainmeter -> InstallPath
         foreach (var baseKey in new[] { Registry.LocalMachine, Registry.CurrentUser })

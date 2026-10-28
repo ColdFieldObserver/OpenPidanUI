@@ -10,7 +10,18 @@ namespace HomeSettings;
 
 public partial class MainWindow : Window
 {
-    private readonly SkinConfig _skin;
+    // --- HomeSettings-specific conventions (intentionally NOT in the generic library) ---
+    private const string IniFileName = "home.ini";
+    private const string AvatarFileName = "avatar.png";
+    private const string PresetsFolderName = "Avatar";
+    private const string NicknameSection = "MeterLaunch1Text";
+    private const string NicknameKey = "Text";
+    private const string NicknameDefault = "Administrator";
+
+    private readonly ISkinContext _skin;
+    private readonly IAvatarWriter _avatarWriter;
+    private readonly IRainmeterController _rainmeter;
+
     private string? _pendingAvatarSource;   // local image chosen (absolute path)
     private string? _selectedPreset;        // preset avatar chosen (absolute path)
 
@@ -22,23 +33,28 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        _skin = new SkinConfig();   // runs inside the skin folder
+        _skin = RainmeterServices.CreateSkinContext(new SkinLayout(IniFileName));
+        _avatarWriter = RainmeterServices.CreateAvatarWriter();
+        _rainmeter = RainmeterServices.CreateController();
         LoadInitial();
     }
 
+    private string AvatarPath => Path.Combine(_skin.SkinDirectory, AvatarFileName);
+    private string PresetsFolder => Path.Combine(_skin.SkinDirectory, PresetsFolderName);
+
     private void LoadInitial()
     {
-        NicknameBox.Text = _skin.GetNickname();
+        NicknameBox.Text = _skin.Settings.GetValue(NicknameSection, NicknameKey, NicknameDefault);
 
-        if (File.Exists(_skin.AvatarPath))
+        if (File.Exists(AvatarPath))
         {
-            AvatarPreview.Source = LoadBitmap(_skin.AvatarPath);
+            AvatarPreview.Source = LoadBitmap(AvatarPath);
         }
 
         var presets = new ObservableCollection<PresetItem>();
-        if (Directory.Exists(_skin.PresetsFolder))
+        if (Directory.Exists(PresetsFolder))
         {
-            foreach (var file in Directory.GetFiles(_skin.PresetsFolder, "*.png")
+            foreach (var file in Directory.GetFiles(PresetsFolder, "*.png")
                          .OrderBy(Path.GetFileName, StringComparer.OrdinalIgnoreCase))
             {
                 presets.Add(new PresetItem { ImagePath = file });
@@ -91,7 +107,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            _skin.SetNickname((NicknameBox.Text ?? "").Trim());
+            _skin.Settings.SetValue(NicknameSection, NicknameKey, (NicknameBox.Text ?? "").Trim());
 
             var avatarSource = _pendingAvatarSource ?? _selectedPreset;
             if (avatarSource is not null)
@@ -100,18 +116,17 @@ public partial class MainWindow : Window
                 // (e.g. an unsupported source format).
                 try
                 {
-                    AvatarWriter.WriteCircular(avatarSource, _skin.AvatarPath, 256, circular: true);
+                    _avatarWriter.WriteAvatar(avatarSource, AvatarPath, 256, circular: true);
                 }
                 catch
                 {
-                    AvatarWriter.WriteCircular(avatarSource, _skin.AvatarPath, 256, circular: false);
+                    _avatarWriter.WriteAvatar(avatarSource, AvatarPath, 256, circular: false);
                 }
             }
 
-            var rm = new RainmeterController();
-            if (rm.IsAvailable)
+            if (_rainmeter.IsAvailable)
             {
-                rm.Refresh(_skin.ConfigName);
+                _rainmeter.Refresh(_skin.ConfigName);
                 MessageBox.Show("已保存，Rainmeter 皮肤已刷新。", "完成",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -138,14 +153,14 @@ public partial class MainWindow : Window
     {
         try
         {
-            AvatarPreview.Source = BitmapFromBytes(AvatarWriter.RenderAvatar(sourcePath, 256, circular: true));
+            AvatarPreview.Source = BitmapFromBytes(_avatarWriter.RenderAvatar(sourcePath, 256, circular: true));
             return;
         }
         catch { /* try square fallback */ }
 
         try
         {
-            AvatarPreview.Source = BitmapFromBytes(AvatarWriter.RenderAvatar(sourcePath, 256, circular: false));
+            AvatarPreview.Source = BitmapFromBytes(_avatarWriter.RenderAvatar(sourcePath, 256, circular: false));
             return;
         }
         catch { /* try raw file load */ }
